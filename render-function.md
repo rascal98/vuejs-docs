@@ -4,27 +4,29 @@ type: guide
 order: 303
 ---
 
-## Basics
+## Temel şeyler
 
-Vue recommends using templates to build your HTML in the vast majority of cases. There are situations however, where you really need the full programmatic power of JavaScript. That's where you can use the **render function**, a closer-to-the-compiler alternative to templates.
+Vue HTML inşa etmek için şablonları kullanmanızı çoğu durumda önerir.JavaScriptin tüm programatik gücüne gerçekten ihtiyaç duyduğunuz durumlar vardır. Bunları **render fonksiyonu** içerisinde şablonlara alternatif derleyiciye-yakın olarak kullanabilirsiniz.
 
-Let's dive into a simple example where a `render` function would be practical. Say you want to generate anchored headings:
+Hadi basit bir örneğin içine `render` fonksiyonunu pratik bir şekilde kullanarak dalalım:
 
 ``` html
 <h1>
   <a name="hello-world" href="#hello-world">
-    Hello world!
+    Merhaba dünya!
   </a>
 </h1>
 ```
 
-For the HTML above, you decide you want this component interface:
+Yukarıdaki HTML için, bu komponentin arayüzünde istediğinize karar veriyorsunuz: 
+
 
 ``` html
-<anchored-heading :level="1">Hello world!</anchored-heading>
+<anchored-heading :level="1">Merhaba Dünya!</anchored-heading>
 ```
 
-When you get started with a component that only generates a heading based on the `level` prop, you quickly arrive at this:
+Bir komponent ile başladığınızda bir başlık tabanlı `level` özelliği üzerinde oluşturur, hızlıca buna ulaşırsınız:
+
 
 ``` html
 <script type="text/x-template" id="anchored-heading-template">
@@ -61,16 +63,16 @@ Vue.component('anchored-heading', {
 })
 ```
 
-That template doesn't feel great. It's not only verbose, but we're duplicating `<slot></slot>` for every heading level and will have to do the same when we add the anchor element.
+Bu şablon çok iyi hissettirmez. Bu sadece gereksiz şeylerle dolu değildir, ancak biz `<slot></slot>`'un kopyalıyoruz ve bağlantı öğesini eklediğimizde aynı şeyi yapmamız gerekecek.
 
-While templates work great for most components, it's clear that this isn't one of them. So let's try rewriting it with a `render` function:
+Şablonlar çoğu komponentler için iyi çalışırken, bunun onlardan biri olmadığı açıktır. Hadi bir `render` fonksiyonu ile tekrardan yazalım:
 
 ``` js
 Vue.component('anchored-heading', {
   render: function (createElement) {
     return createElement(
-      'h' + this.level,   // tag name
-      this.$slots.default // array of children
+      'h' + this.level,   // etiket ismi
+      this.$slots.default // çocukların (alt elemanların) dizisi
     )
   },
   props: {
@@ -81,6 +83,8 @@ Vue.component('anchored-heading', {
   }
 })
 ```
+
+Çok daha basit! Kod daha kısa fakat Vue örnek özellikleriyle daha iyi hakim olmanız gerekir. Bu durumda, //TODO
 
 Much simpler! Sort of. The code is shorter, but also requires greater familiarity with Vue instance properties. In this case, you have to know that when you pass children without a `v-slot` directive into a component, like the `Hello world!` inside of `anchored-heading`, those children are stored on the component instance at `$slots.default`. If you haven't already, **it's recommended to read through the [instance properties API](../api/#Instance-Properties) before diving into render functions.**
 

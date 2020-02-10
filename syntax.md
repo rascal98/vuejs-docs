@@ -139,85 +139,89 @@ Burada argüman bir dinlenecek event işleminin ismidir. Daha sonra event yakala
 
 ``` html
 <!--
-Note that there are some constraints to the argument expression, as explained
-in the "Dynamic Argument Expression Constraints" section below.
+Dikkate alın burada argüman ifadelerine bazı kısıtlamalar var,"Dinamik Argüman İfade Kısıtlamaları"'nın aşağıdaki bölümde açıklandığı gibi 
+
 -->
 <a v-bind:[attributeName]="url"> ... </a>
 ```
+Burada `attributeName` dinamik olarak JavaScript ifadesi olarak değişecektir ve bu değişen değer argümanın son değeri olarak kullanılacaktır. Örneğin, eğer Vue örneğinizin bir veri özelliği varsa ve `attributeName`'i `href` olan ile bu bağlama `v-bind:href` ile eşdeğer olacaktır.
 
-Here `attributeName` will be dynamically evaluated as a JavaScript expression, and its evaluated value will be used as the final value for the argument. For example, if your Vue instance has a data property, `attributeName`, whose value is `"href"`, then this binding will be equivalent to `v-bind:href`.
-
-Similarly, you can use dynamic arguments to bind a handler to a dynamic event name:
+Benzer olarak, dinamik argümanları dinamik eventlerde de bağlamak için ismiyle kullanabilirsiniz:
 
 ``` html
 <a v-on:[eventName]="doSomething"> ... </a>
 ```
 
-In this example, when `eventName`'s value is `"focus"`, `v-on:[eventName]` will be equivalent to `v-on:focus`.
+Bu örnekte `eventName`'nin değeri `"focus"` olduğunda `v-on:focus` ile eşdeğer olacaktır.
 
-#### Dynamic Argument Value Constraints
 
-Dynamic arguments are expected to evaluate to a string, with the exception of `null`. The special value `null` can be used to explicitly remove the binding. Any other non-string value will trigger a warning.
+#### Dinamik Argüman Değer Kısıtlamaları
 
-#### Dynamic Argument Expression Constraints
+Dinamik argümanlar yazılan yazıyı değerlendirmesi içindir, `null` ile beraber. Özel değer olan `null` bağı açıkça silmek için kullanılır. Diğer her string olmayan değerler bir uyarıyı tetikleyecektir.
 
-Dynamic argument expressions have some syntax constraints because certain characters, such as spaces and quotes, are invalid inside HTML attribute names. For example, the following is invalid:
+#### Dinamik Argüman Değer Kısıtlamaları
+
+Dinamik argüman ifadeleri bazı belirli karakter söz dizimi kısıtlamalarına sahiptir boşluklar ve tırnaklar gibi, bunlar HTML nitelik isimlerinin içinde geçersizdir. Örneğin aşağıdaki geçersizdir:
 
 ``` html
-<!-- This will trigger a compiler warning. -->
+<!-- Bu bir derleyici uyarısı tetikler. -->
 <a v-bind:['foo' + bar]="value"> ... </a>
 ```
 
-The workaround is to either use expressions without spaces or quotes, or replace the complex expression with a computed property.
+Geçici çözüm her ikisine de ifadeleri boşluk ve tırnak olmadan veya bir karmaşık ifadeyle hesaplanan özellik olarak değiştirip kullanabilirsiniz. 
 
-When using in-DOM templates (templates directly written in an HTML file), you should also avoid naming keys with uppercase characters, as browsers will coerce attribute names into lowercase:
+DOM içi şablonları kullanırsanız (şablonlar direkt olarak html dosyasında yazılmış halde), ayrıca isimlendirme anahtarlarını büyük karakterleri önlemelisiniz, tarayıcılar nitelik isimlerini küçük karakter olması için zorlayacaktır:
 
 ``` html
 <!--
-This will be converted to v-bind:[someattr] in in-DOM templates.
-Unless you have a "someattr" property in your instance, your code won't work.
+  Bu DOM şablonu içerisinde buna dönüştürülecektir v-bind:[someattr].
+  "someattr" özelliği örneğiniz içerisinde olmadıkça kodunuz çalışacaktır.
 -->
 <a v-bind:[someAttr]="value"> ... </a>
 ```
 
-### Modifiers
+### Değiştiriciler
 
-Modifiers are special postfixes denoted by a dot, which indicate that a directive should be bound in some special way. For example, the `.prevent` modifier tells the `v-on` directive to call `event.preventDefault()` on the triggered event:
+Değiştiriceler, bir direktifin belirli bir şekilde bağlanması gerektiğini belirten, nokta ile gösterilen özel son düzeltmedir. Örneğin, `.prevent` değiştiricisi `v-on` direktifinin eventi tetiklendiğinde  `event.preventDefault()` fonksiyonunu çağırır.
+
 
 ``` html
 <form v-on:submit.prevent="onSubmit"> ... </form>
 ```
 
-You'll see other examples of modifiers later, [for `v-on`](events.html#Event-Modifiers) and [for `v-model`](forms.html#Modifiers), when we explore those features.
+Diğer değiştiricilerin örneklerini [for `v-on`](events.html#Event-Modifiers) ve [for `v-model`](forms.html#Modifiers) bunların özelliklerini keşfederken sonra göreceğiz.
 
-## Shorthands
 
-The `v-` prefix serves as a visual cue for identifying Vue-specific attributes in your templates. This is useful when you are using Vue.js to apply dynamic behavior to some existing markup, but can feel verbose for some frequently used directives. At the same time, the need for the `v-` prefix becomes less important when you are building a [SPA](https://en.wikipedia.org/wiki/Single-page_application), where Vue manages every template. Therefore, Vue provides special shorthands for two of the most often used directives, `v-bind` and `v-on`:
+## Kısaltmalar (Shorthands)
 
-### `v-bind` Shorthand
+`v-` ön eki Vue'nin niteliklerinin kimliğini belirlemeyi  şablonlarda görsel bir ipucu olarak bize sunar. Dinamik davranışları kabul ettiğinizde bazı hali hazırda olan işaretlemeler Vue.js kullandığınızda kullanışlıdır , fakat sık sık kullanılan direktifleri gereksiz sözlerle dolu hissedeceksiniz. Aynı zamanda, bir [SPA] inşa ettiğinizde (https://en.wikipedia.org/wiki/Single-page_application) `v-` ön eki daha az önemli hale gelir. Bu yüzden, iki veya daha sık kullanılan direktifler  `v-bind` ve `v-on` için Vue özel kısaltmalar sağlar.
+
+
+### `v-bind` Kısaltması
 
 ``` html
-<!-- full syntax -->
+<!-- Tam söz dizimi -->
 <a v-bind:href="url"> ... </a>
 
-<!-- shorthand -->
+<!-- kısaltma -->
 <a :href="url"> ... </a>
 
-<!-- shorthand with dynamic argument (2.6.0+) -->
+<!-- kısaltma ve dinamik argüman (2.6.0+) -->
 <a :[key]="url"> ... </a>
 ```
 
 ### `v-on` Shorthand
 
 ``` html
-<!-- full syntax -->
+<!-- Tam söz dizimi -->
 <a v-on:click="doSomething"> ... </a>
 
-<!-- shorthand -->
+<!-- kısaltma -->
 <a @click="doSomething"> ... </a>
 
-<!-- shorthand with dynamic argument (2.6.0+) -->
+<!-- kısaltma ve dinamik argüman (2.6.0+) -->
 <a @[event]="doSomething"> ... </a>
 ```
 
-They may look a bit different from normal HTML, but `:` and `@` are valid characters for attribute names and all Vue-supported browsers can parse it correctly. In addition, they do not appear in the final rendered markup. The shorthand syntax is totally optional, but you will likely appreciate it when you learn more about its usage later.
+Bunlar normal HTML'den biraz farklı görünmektedir fakat `:` ile `@` nitelikler için geçerli karakterlerdir ve tüm Vue-destekli tarayıcılarda doğru şekilde gösterilecektir. İlave olarak, son oluşturma işaretlemesinde görünmeyecektir. Kısaltma sözdizimi tamamen seçenekseldir fakat daha fazla öğrenip kullandığınızda muhtemelen takdir edeceksiniz.
+
