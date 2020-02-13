@@ -84,37 +84,38 @@ Vue.component('anchored-heading', {
 })
 ```
 
-Çok daha basit! Kod daha kısa fakat Vue örnek özellikleriyle daha iyi hakim olmanız gerekir. Bu durumda, //TODO
+Çok daha basit! Kod daha kısa fakat Vue örnek özellikleriyle daha iyi hakim olmanız gerekir. Bu durumda şunu bilmelisiniz veriyi alt elemana `v-slot` direktifiyle komponentde göndermezseniz, `anchored-heading` içindeki `Merhaba dünya!` gibi; bu alt elemanlar komponentin örneğinde `$slots.default`'da depolanır. Eğer hazır değilseniz, **render fonksiyonlarına dalmadan okumanız tavsiye edilir [instance properties API](../api/#Instance-Properties).**
 
-Much simpler! Sort of. The code is shorter, but also requires greater familiarity with Vue instance properties. In this case, you have to know that when you pass children without a `v-slot` directive into a component, like the `Hello world!` inside of `anchored-heading`, those children are stored on the component instance at `$slots.default`. If you haven't already, **it's recommended to read through the [instance properties API](../api/#Instance-Properties) before diving into render functions.**
+## Düğümler, Ağaçlar, ve Sanal DOM
 
-## Nodes, Trees, and the Virtual DOM
+Render fonksiyonlarına dalmadan önce tarayıcıların nasıl çalıştığı hakkında biraz bilgi sahibi olmak önemlidir. Bu HTML'i örnek olarak gör:
 
 Before we dive into render functions, it’s important to know a little about how browsers work. Take this HTML for example:
 
 ```html
 <div>
-  <h1>My title</h1>
-  Some text content
+  <h1>Başlığım</h1>
+  Biraz yazı içeriği
   <!-- TODO: Add tagline  -->
 </div>
 ```
 
-When a browser reads this code, it builds a [tree of "DOM nodes"](https://javascript.info/dom-nodes) to help it keep track of everything, just as you might build a family tree to keep track of your extended family.
+Tarayıcı bu kodu okuduğunda bir ["DOM düğümleri"'nin ağacını](https://javascript.info/dom-nodes) koda yardım ve herşeyin takip edilebilmesi için inşa eder, bu aslında aile kütüğünüzü inşa edip geniş ailenizi takip etmek gibidir.
 
-The tree of DOM nodes for the HTML above looks like this:
+DOM düğümlerinin ağacı HTM için aşağıdaki gibidir:
 
-![DOM Tree Visualization](/images/dom-tree.png)
+![DOM Ağaç Görselleştirilmesi](/images/dom-tree.png)
 
-Every element is a node. Every piece of text is a node. Even comments are nodes! A node is just a piece of the page. And as in a family tree, each node can have children (i.e. each piece can contain other pieces).
+Her element bir düğümdür. Yazının her bir parçası bir düğümdür. Yorumlar bile düğümlerdir! Düğüm sayfanın sadece bir parçasıdır. Aile kütüğü gibi her bir düğüm bir çocuğa (alt elemana) sahiptir (her bir parça başka parçaları barındırabilir).
 
-Updating all these nodes efficiently can be difficult, but thankfully, you never have to do it manually. Instead, you tell Vue what HTML you want on the page, in a template:
+Bu düğümlerin hepsini düzgünce güncellemek zor olabilir, fakat müteşekkir olun bunu asla manüel olarak yapmayacaksınız. Bunun yerine Vue'ye HTML'den ne istediğinizi sayfada söyleyin, örnek olarak şu şekilde:
+
 
 ```html
 <h1>{{ blogTitle }}</h1>
 ```
 
-Or a render function:
+Veya bir render fonksiyonuyla:
 
 ``` js
 render: function (createElement) {
@@ -122,40 +123,40 @@ render: function (createElement) {
 }
 ```
 
-And in both cases, Vue automatically keeps the page updated, even when `blogTitle` changes.
+Ve iki durumda da Vue otomatik olarak sayfanın güncel olmasını `blogTitle` değişse bile sağlar.
 
-### The Virtual DOM
+### Sanal DOM
 
-Vue accomplishes this by building a **virtual DOM** to keep track of the changes it needs to make to the real DOM. Taking a closer look at this line:
+Vue gerçek DOM'da oluşturmak için değişikliklerin takip edilmesi amacıyla bir **sanal DOM** inşa ederek üstesinden gelir.  Biraz yakından bu satıra bakalım:
 
 ``` js
 return createElement('h1', this.blogTitle)
 ```
 
-What is `createElement` actually returning? It's not _exactly_ a real DOM element. It could perhaps more accurately be named `createNodeDescription`, as it contains information describing to Vue what kind of node it should render on the page, including descriptions of any child nodes. We call this node description a "virtual node", usually abbreviated to **VNode**. "Virtual DOM" is what we call the entire tree of VNodes, built by a tree of Vue components.
+`createElement` gerçekden ne döndürüyor? Döndürdüğü _kesinlikle_ bir DOM elemanı değil. Herhangi bir alt düğümün açıklamaları da dahil ne tür bir düğümün sayfada render edileceği gerektiğini belki daha doğru olarak `createNodeDescription` adlandırılabilir. Bu düğüm açıklamasını "sanal düğüm" olarak diyoruz, genellikle **VNode** şeklinde kısaltılmış olarak kullanıyoruz. "Sanal DOM" Vue komponentlerinin bir ağacı ile inşa edilen VNodes'lerin tüm ağacının tamamı olarak adlandırdığımız şeydir.
 
-## `createElement` Arguments
+## `createElement` Argümanları
 
-The next thing you'll have to become familiar with is how to use template features in the `createElement` function. Here are the arguments that `createElement` accepts:
+Şablon özelliklerini `createElement` fonksiyonunda nasıl kullandığınız tanıdık gelecek.`createElement`'in aldığı argümanlar:
 
 ``` js
 // @returns {VNode}
 createElement(
   // {String | Object | Function}
-  // An HTML tag name, component options, or async
-  // function resolving to one of these. Required.
+  // Bir html etiketi, komponent özellikleri, veya async
+  // fonksiyon çözümü için bunlardan birisi. Gerekli.
   'div',
 
   // {Object}
-  // A data object corresponding to the attributes
-  // you would use in a template. Optional.
+  // Şablon içerisinde kullanmak isteyeceğiniz
+  // özellikleri uyan bir veri bbjesi. İsteksel.
   {
-    // (see details in the next section below)
+    // (detaylar bitişik alanda aşağıda)
   },
 
   // {String | Array}
-  // Children VNodes, built using `createElement()`,
-  // or using strings to get 'text VNodes'. Optional.
+  // Alt Eleman VNodes, kullanılarak oluşturuldu `createElement()`,
+  // or using strings to get 'text VNodes'. İsteksel.
   [
     'Some text comes first.',
     createElement('h1', 'A headline'),
